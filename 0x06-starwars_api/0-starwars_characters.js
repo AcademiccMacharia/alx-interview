@@ -1,54 +1,57 @@
 #!/usr/bin/node
 
 const request = require('request');
-const util = require('util');
+const { promisify } = require('util');
 
-// Convert request to use promises
-const requestPromise = util.promisify(request);
+// Promisify the request module to use async/await
+const requestAsync = promisify(request);
 
-// Check if a movie ID is provided as a command-line argument
-if (process.argv.length !== 3) {
-  console.error('Usage: ./star_wars_characters.js <Movie ID>');
-  process.exit(1);
-}
-
-const movieId = process.argv[2];
-const url = `https://swapi.dev/api/films/${movieId}/`;
-
-// Function to fetch data from a URL
-async function fetchData(url) {
+async function fetchFilmData(url) {
   try {
-    const { body, statusCode } = await requestPromise(url);
-    if (statusCode !== 200) {
-      throw new Error(`Failed to retrieve data. Status code: ${statusCode}`);
-    }
-    return JSON.parse(body);
+    const response = await requestAsync(url);
+    const filmData = JSON.parse(response.body);
+    return filmData.characters;
   } catch (error) {
-    console.error('Error fetching data:', error);
+    console.error('Error fetching film data:', error);
     process.exit(1);
   }
 }
 
-// Main function to display character names
-async function displayCharacterNames() {
-  const filmData = await fetchData(url);
-  
-  if (!filmData.characters) {
-    console.error('No characters found for the given movie ID.');
+async function fetchCharacterData(url) {
+  try {
+    const response = await requestAsync(url);
+    const characterData = JSON.parse(response.body);
+    return characterData.name;
+  } catch (error) {
+    console.error('Error fetching character data:', error);
+    return null;
+  }
+}
+
+async function main() {
+  // Ensure a movie ID is provided
+  if (process.argv.length !== 3) {
+    console.log('Usage: ./star_wars_characters.js <movie_id>');
     process.exit(1);
   }
 
-  // Fetch all character data and ensure order
-  for (const characterUrl of filmData.characters) {
-    try {
-      const characterData = await fetchData(characterUrl);
-      console.log(characterData.name);
-    } catch (error) {
-      console.error('Error fetching character data:', error);
+  // Parse the movie ID from command line arguments
+  const movieId = process.argv[2];
+
+  // URL for the films endpoint of the Star Wars API
+  const filmUrl = `https://swapi.dev/api/films/${movieId}/`;
+
+  // Fetch the film data
+  const characterUrls = await fetchFilmData(filmUrl);
+
+  // Fetch character data and print names in order
+  for (const characterUrl of characterUrls) {
+    const characterName = await fetchCharacterData(characterUrl);
+    if (characterName) {
+      console.log(characterName);
     }
   }
 }
 
-// Execute the main function
-displayCharacterNames();
+main();
 
