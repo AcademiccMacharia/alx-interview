@@ -6,7 +6,7 @@ const { promisify } = require('util');
 // Promisify the request module to use async/await
 const requestAsync = promisify(request);
 
-async function fetchFilmData(url) {
+async function fetchFilmData (url) {
   try {
     const response = await requestAsync(url);
     const filmData = JSON.parse(response.body);
@@ -17,7 +17,7 @@ async function fetchFilmData(url) {
   }
 }
 
-async function fetchCharacterData(url) {
+async function fetchCharacterData (url) {
   try {
     const response = await requestAsync(url);
     const characterData = JSON.parse(response.body);
@@ -28,7 +28,7 @@ async function fetchCharacterData(url) {
   }
 }
 
-async function main() {
+async function main () {
   // Ensure a movie ID is provided
   if (process.argv.length !== 3) {
     console.log('Usage: ./star_wars_characters.js <movie_id>');
@@ -54,4 +54,3 @@ async function main() {
 }
 
 main();
-
