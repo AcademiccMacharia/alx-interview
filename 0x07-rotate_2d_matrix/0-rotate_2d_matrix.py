@@ -1,6 +1,16 @@
 #!/usr/bin/python3
 
 def rotate_2d_matrix(matrix):
+    """
+    Rotates an nxn matrix in place
+
+    Args:
+        matrix(): The matrix to be rotated
+
+    Returns:
+        None: The matrix is rotated in place.
+    """
+
     n = len(matrix)
 
     for i in range(n):
